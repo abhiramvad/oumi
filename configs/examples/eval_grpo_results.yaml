@@ -1,0 +1,28 @@
+# Evaluate your GRPO-trained model on letter counting
+#
+# Usage:
+#   oumi evaluate -c configs/examples/eval_grpo_results.yaml
+#
+# This will test accuracy on the letter counting task
+
+model:
+  model_name: "output/learn_grpo/checkpoint-30"  # Your trained GRPO model
+  torch_dtype_str: "bfloat16"
+
+data:
+  validation:
+    datasets:
+      - dataset_name: "oumi-ai/oumi-letter-count"
+        split: "test[:20]"
+
+evaluation:
+  metrics:
+    - "accuracy"
+    - "perplexity"
+
+  num_test_samples: 10
+
+inference:
+  engine: "oumi"
+  max_new_tokens: 64
+  temperature: 0.1  # Lower for reasoning tasks

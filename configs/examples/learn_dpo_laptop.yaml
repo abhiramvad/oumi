@@ -1,0 +1,59 @@
+# Laptop-friendly DPO training config
+# Uses Falcon-H1 0.5B (smallest model) with QLoRA for minimal memory
+#
+# Usage:
+#   oumi train -c configs/examples/learn_dpo_laptop.yaml
+#
+# What this teaches:
+#   - How DPO works with preference pairs
+#   - Training with chosen/rejected responses
+#   - Using QLoRA for memory efficiency
+
+model:
+  model_name: "tiiuae/Falcon-H1-0.5B-Instruct"
+  model_max_length: 2048  # Reduced for laptop
+  torch_dtype_str: "bfloat16"
+  attn_implementation: "sdpa"
+  trust_remote_code: True
+
+data:
+  train:
+    datasets:
+      # Small preference dataset for learning
+      - dataset_name: "HumanLLMs/Human-Like-DPO-Dataset"
+        split: "train[:100]"  # Only 100 examples for quick learning
+
+training:
+  trainer_type: "TRL_DPO"
+  use_peft: true
+
+  # Training settings optimized for laptop
+  max_steps: 50  # Short run to see results quickly
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 2
+
+  learning_rate: 5e-5
+  lr_scheduler_type: "cosine"
+  warmup_steps: 5
+
+  # Logging to see what's happening
+  logging_steps: 5
+  save_steps: 25
+
+  output_dir: "output/learn_dpo"
+  enable_wandb: False  # Disable if you don't have wandb
+
+  # Memory optimization
+  enable_gradient_checkpointing: True
+
+peft:
+  q_lora: True
+  bnb_4bit_quant_type: "nf4"
+  bnb_4bit_compute_dtype: "bfloat16"
+  lora_r: 8  # Smaller rank = less memory
+  lora_alpha: 16
+  lora_target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"

@@ -1,0 +1,58 @@
+# Laptop-friendly GRPO training config
+# Uses Qwen2 0.5B (smallest instruct model) for letter counting task
+#
+# Usage:
+#   oumi train -c configs/examples/learn_grpo_laptop.yaml
+#
+# What this teaches:
+#   - How GRPO works with reward functions
+#   - Training on verifiable tasks (letter counting)
+#   - Generating multiple responses per prompt
+#
+# Note: GRPO needs more memory than DPO due to generation.
+# If this OOMs, reduce vllm_gpu_memory_utilization or use CPU.
+
+model:
+  model_name: "Qwen/Qwen2-0.5B-Instruct"
+  model_max_length: 2048
+  torch_dtype_str: "bfloat16"
+  attn_implementation: "sdpa"
+
+data:
+  train:
+    datasets:
+      - dataset_name: "oumi-ai/oumi-letter-count"
+        split: "train[:50]"  # Only 50 examples for quick learning
+
+training:
+  trainer_type: "TRL_GRPO"
+
+  # Training settings optimized for laptop
+  max_steps: 30  # Shorter than DPO because each step is expensive
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 2
+
+  learning_rate: 5e-7
+  lr_scheduler_type: "cosine"
+  warmup_steps: 3
+
+  # The reward function that scores letter counting accuracy
+  reward_functions: ["count_letters"]
+
+  grpo:
+    num_generations: 2  # Generate 2 responses per prompt (reduced for laptop)
+    use_vllm: True
+    vllm_gpu_memory_utilization: 0.3  # Conservative for laptop
+    epsilon: 1e-4
+
+  # Logging
+  logging_steps: 3
+  save_steps: 15
+  output_dir: "output/learn_grpo"
+  enable_wandb: False
+
+  # Memory optimization
+  enable_gradient_checkpointing: False  # vLLM handles this
+  optimizer: "adafactor"  # More memory efficient
+
+  dataloader_num_workers: 0  # Reduce for laptop

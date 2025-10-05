@@ -1,0 +1,29 @@
+# Evaluate your DPO-trained model
+#
+# Usage:
+#   oumi evaluate -c configs/examples/eval_dpo_results.yaml
+#
+# This will test the model on conversation quality
+
+model:
+  model_name: "output/learn_dpo/checkpoint-50"  # Your trained DPO model
+  torch_dtype_str: "bfloat16"
+  trust_remote_code: True
+
+data:
+  validation:
+    datasets:
+      - dataset_name: "HumanLLMs/Human-Like-DPO-Dataset"
+        split: "test[:20]"  # Small test set
+
+evaluation:
+  metrics:
+    - "perplexity"
+
+  # Generate some sample outputs to see quality
+  num_test_samples: 5
+
+inference:
+  engine: "oumi"
+  max_new_tokens: 128
+  temperature: 0.7
