@@ -14,10 +14,12 @@
 
 """Preference tuning datasets module."""
 
+from oumi.datasets.preference_tuning.human_like_dpo import HumanLikeDpoDataset
 from oumi.datasets.preference_tuning.kto_mix import KtoMix14kDataset
 from oumi.datasets.preference_tuning.orpo_dpo_mix import OrpoDpoMix40kDataset
 
 __all__ = [
+    "HumanLikeDpoDataset",
     "KtoMix14kDataset",
     "OrpoDpoMix40kDataset",
 ]
