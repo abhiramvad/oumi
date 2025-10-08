@@ -42,6 +42,7 @@ training:
   grpo:
     num_generations: 2  # Generate 2 responses per prompt (reduced for laptop)
     use_vllm: True
+    vllm_mode: "colocate"
     vllm_gpu_memory_utilization: 0.3  # Conservative for laptop
     epsilon: 1e-4
 

@@ -1,0 +1,9 @@
+model:
+  model_name: "./output/learn_grpo/checkpoint-30"  # Change this to your checkpoint path
+  trust_remote_code: True
+
+generation:
+  max_new_tokens: 256
+  batch_size: 1
+
+engine: NATIVE
